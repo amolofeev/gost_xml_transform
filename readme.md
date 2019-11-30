@@ -16,7 +16,7 @@ do_smth(result)
 
 **Warning!**
 
-Sorting algorithm of ns prefix could be wrong. 
+Sorting algorithm of ns prefix can be wrong. 
 
 To be sure that's right we must contact to SMEV 3 support team and ask them to provide correct output for input like that
 
