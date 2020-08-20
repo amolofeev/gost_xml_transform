@@ -14,12 +14,13 @@
   в рамках обрабатываемого XML-фрагмента, начиная с единицы.
   При генерации префиксов должно устраняться их дублирование.
 """
+# pylint: disable=C0116,C0115,C0114
 import unittest
-from unittest import TestCase
+
 from gost_xml_transform import GOSTXMLTransform
 
 
-class TestBase(TestCase):
+class TestBase(unittest.TestCase):
     def test_self_close_tag(self):
         self.assertEqual(
             '<tag></tag>',
@@ -47,7 +48,8 @@ class TestBase(TestCase):
     def test_rename_namespace(self):
         self.assertEqual(
             '<ns1:tag xmlns:ns1="urn://x"></ns1:tag>',
-            GOSTXMLTransform.from_string('<myns:tag xmlns:myns="urn://x" />').to_bytes().decode('utf-8')
+            GOSTXMLTransform.from_string('<myns:tag xmlns:myns="urn://x" />')
+            .to_bytes().decode('utf-8')
         )
 
     def test_children_namespace(self):

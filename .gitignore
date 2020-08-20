@@ -1,6 +1,7 @@
-.idea/
-.env/
+.*
 __pycache__/
 *.egg-info/
 build/
-.mypy_cache
+
+!.gitignore
+!.pylintrc
