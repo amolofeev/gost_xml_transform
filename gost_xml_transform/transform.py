@@ -1,6 +1,6 @@
-# pylint: disable=C0116,C0115,C0114
+# pylint: disable=C0116,C0115,C0114,R0402
 from io import BytesIO
-from typing import Tuple, Union
+from typing import Optional, Tuple
 
 import lxml.etree as etree
 
@@ -9,7 +9,7 @@ class GOSTXMLTransform:
     def __init__(self, element: etree.Element):
         self.root = XMLNode(element)
 
-    def to_bytes(self) -> Union[bytes, None]:
+    def to_bytes(self) -> bytes:
         """
         Build end return result bytes of transformed xml
         """
@@ -45,7 +45,7 @@ class XMLNode:
         self.qname = etree.QName(element.tag)
         self.nsmap: dict = {}
         self.attrib: list = []
-        self.prefix: Union[str, None] = None
+        self.prefix: Optional[str] = None
         self._parse_nsmap()
         self._parse_attrib()
         self.children: Tuple['XMLNode', ...] = tuple(
@@ -122,7 +122,7 @@ class XMLNode:
             if uri is not None:
                 self.get_ns(uri)
 
-    def get_ns(self, uri, is_child=False) -> Union[None, str]:
+    def get_ns(self, uri, is_child=False) -> Optional[str]:
         """Try to find registered ns prefix or generate new one"""
         if uri in self.nsmap:
             return self.nsmap[uri]
@@ -163,7 +163,7 @@ class XMLNode:
                 nsmap.append(f'xmlns:{ns_prefix}="{uri}"')
         return ' ' + ' '.join(nsmap)
 
-    def _attrib_to_string(self):
+    def _attrib_to_string(self) -> str:
         """
         Return string of sorted attributes
         """

@@ -14,69 +14,50 @@
   в рамках обрабатываемого XML-фрагмента, начиная с единицы.
   При генерации префиксов должно устраняться их дублирование.
 """
+
+
 # pylint: disable=C0116,C0115,C0114
-import unittest
-
-from gost_xml_transform import GOSTXMLTransform
 
 
-class TestBase(unittest.TestCase):
-    def test_self_close_tag(self):
-        self.assertEqual(
-            '<tag></tag>',
-            GOSTXMLTransform.from_string("<tag/>").to_bytes().decode('utf-8')
-        )
-
-    def test_rm_empty_text(self):
-        self.assertEqual(
-            '<tag></tag>',
-            GOSTXMLTransform.from_string("<tag>        </tag>").to_bytes().decode('utf-8')
-        )
-
-    def test_pass_text(self):
-        self.assertEqual(
-            '<tag>  text  </tag>',
-            GOSTXMLTransform.from_string("<tag>  text  </tag>").to_bytes().decode('utf-8')
-        )
-
-    def test_rm_unused_namespace(self):
-        self.assertEqual(
-            '<tag></tag>',
-            GOSTXMLTransform.from_string('<tag  xmlns:myns="urn://x" />').to_bytes().decode('utf-8')
-        )
-
-    def test_rename_namespace(self):
-        self.assertEqual(
-            '<ns1:tag xmlns:ns1="urn://x"></ns1:tag>',
-            GOSTXMLTransform.from_string('<myns:tag xmlns:myns="urn://x" />')
-            .to_bytes().decode('utf-8')
-        )
-
-    def test_children_namespace(self):
-        self.assertEqual(
-            '<ns1:tag xmlns:ns1="urn://x"><ns2:tag2 xmlns:ns2="urn://x1"></ns2:tag2></ns1:tag>',
-            GOSTXMLTransform.from_string(
-                '<myns:tag xmlns:myns="urn://x"  xmlns:myns2="urn://x1">'
-                '<myns2:tag2/>'
-                '</myns:tag>'
-            ).to_bytes().decode('utf-8')
-        )
-
-    def test_children_namespace_2(self):
-        self.assertEqual(
-            '<ns1:tag xmlns:ns1="urn://x">'
-            '<ns2:tag2 xmlns:ns2="urn://x1"></ns2:tag2>'
-            '<ns3:tag2 xmlns:ns3="urn://x1">'
-            '</ns3:tag2></ns1:tag>',
-
-            GOSTXMLTransform.from_string(
-                '<myns:tag xmlns:myns="urn://x"  xmlns:myns2="urn://x1">'
-                '<myns2:tag2/>'
-                '<myns2:tag2/>'
-                '</myns:tag>'
-            ).to_bytes().decode('utf-8')
-        )
+def test_self_close_tag(transform_from_str):
+    assert transform_from_str("<tag/>") == '<tag></tag>'
 
 
-if __name__ == '__main__':
-    unittest.main()
+def test_rm_empty_text(transform_from_str):
+    assert transform_from_str("<tag>        </tag>") == '<tag></tag>'
+
+
+def test_pass_text(transform_from_str):
+    assert transform_from_str("<tag>  text  </tag>") == '<tag>  text  </tag>'
+
+
+def test_rm_unused_namespace(transform_from_str):
+    assert transform_from_str('<tag  xmlns:myns="urn://x" />') == '<tag></tag>'
+
+
+def test_rename_namespace(transform_from_str):
+    assert transform_from_str(
+        '<myns:tag xmlns:myns="urn://x" />'
+    ) == '<ns1:tag xmlns:ns1="urn://x"></ns1:tag>'
+
+
+def test_children_namespace(transform_from_str):
+    assert transform_from_str(
+        '<myns:tag xmlns:myns="urn://x"  xmlns:myns2="urn://x1">'
+        '<myns2:tag2/>'
+        '</myns:tag>'
+    ) == '<ns1:tag xmlns:ns1="urn://x"><ns2:tag2 xmlns:ns2="urn://x1"></ns2:tag2></ns1:tag>'
+
+
+def test_children_namespace_2(transform_from_str):
+    assert transform_from_str(
+        '<myns:tag xmlns:myns="urn://x"  xmlns:myns2="urn://x1">'
+        '<myns2:tag2/>'
+        '<myns2:tag2/>'
+        '</myns:tag>'
+    ) == (
+        '<ns1:tag xmlns:ns1="urn://x">'
+        '<ns2:tag2 xmlns:ns2="urn://x1"></ns2:tag2>'
+        '<ns3:tag2 xmlns:ns3="urn://x1"></ns3:tag2>'
+        '</ns1:tag>'
+    )
